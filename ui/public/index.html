@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Restaurant Locator - powered by Algolia</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/tachyons@4.9.0/css/tachyons.min.css"/>
+    <!-- hyperHTML for building web components -->
+    <script src="//unpkg.com/hyperhtml@latest/min.js"></script>
+    <script src="//unpkg.com/hyperhtml-element@latest/min.js"></script>
+    <script>window.customElements || document.write('<script src="//cdnjs.cloudflare.com/ajax/libs/document-register-element/1.6.2/document-register-element.js"><' + '/script>')</script>
+
+    <style>
+        .body-background {
+            background: url(/graphics/background.png) repeat;
+        }
+    </style>
+</head>
+<body class="helvetica body-background">
+<div class="vh-100 flex flex-column justify-center">
+    <restaurant-search></restaurant-search>
+</div>
+<script src="https://cdn.jsdelivr.net/algoliasearch/3/algoliasearch.min.js"></script>
+<script src="bundle.js"></script>
+<script>
+    window.rest = {
+        "name": "Pier Cafe",
+        "address": "885 W Harbor Dr",
+        "area": "San Diego",
+        "city": "San Diego",
+        "country": "US",
+        "image_url": "https://www.opentable.com/img/restimages/99937.jpg",
+        "mobile_reserve_url": "http://mobile.opentable.com/opentable/?restId=99937",
+        "payment_options": [
+            "AMEX",
+            "Discover",
+            "MasterCard",
+            "Visa"
+        ],
+        "phone": "6192393968",
+        "postal_code": "92101",
+        "price": 2,
+        "reserve_url": "http://www.opentable.com/single.aspx?rid=99937",
+        "state": "CA",
+        "_geoloc": {
+            "lat": 32.711629,
+            "lng": -117.170479
+        },
+        "food_type": "Seafood",
+        "stars_count": "4.1",
+        "reviews_count": "186",
+        "neighborhood": "Downtown / Gaslamp",
+        "phone_number": "(619) 239-3968",
+        "price_range": "$30 and under",
+        "dining_style": "Casual Dining",
+        "objectID": "99937"
+    }
+</script>
+</body>
+</html>

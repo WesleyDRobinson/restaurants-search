@@ -1,0 +1,28 @@
+{
+  "name": "algolia-project-ui",
+  "version": "0.5.0",
+  "main": "index.js",
+  "author": "wesley <robinson.wesleyd@gmail.com>",
+  "license": "ISC",
+  "scripts": {
+    "build": "webpack src/index.js public/bundle.js",
+    "build:watch": "webpack -w -d src/*.js public/bundle.js",
+    "deploy": "npm run build && now",
+    "dev": "npm-run-all -p build:watch start",
+    "release": "now alias",
+    "start": "http-server"
+  },
+  "now": {
+    "public": false,
+    "alias": "restaurant-search"
+  },
+  "devDependencies": {
+    "http-server": "^0.11.1",
+    "npm-run-all": "^4.1.2",
+    "webpack": "^3.10.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "lodash.debounce": "^4.0.8"
+  }
+}

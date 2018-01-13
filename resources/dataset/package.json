@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "algoliasearch": "^3.24.9",
+    "lodash.find": "^4.6.0",
+    "lodash.mergewith": "^4.6.0",
+    "lodash.zipobject": "^4.1.3"
+  }
+}
