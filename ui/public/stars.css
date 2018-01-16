@@ -1,0 +1,33 @@
+.stars-container {
+    position: relative;
+    display: inline-block;
+    color: transparent;
+}
+
+.stars-container:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: '★★★★★';
+    color: lightgray;
+}
+.stars-container:after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: '★★★★★';
+    color: var(--gold);
+    overflow: hidden;
+}
+
+.stars-0:after  { width: 0; }
+.stars-05:after { width: 10%; }
+.stars-1:after  { width: 20%; }
+.stars-25:after { width: 30%; }
+.stars-2:after  { width: 40%; }
+.stars-25:after { width: 50%; }
+.stars-3:after  { width: 60%; }
+.stars-35:after { width: 70%; }
+.stars-4:after  { width: 80%; }
+.stars-45:after { width: 90%; }
+.stars-5:after  { width: 100%; }
