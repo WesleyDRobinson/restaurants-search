@@ -1,7 +1,8 @@
 import ResultsList from './results-list'
 class SearchBar extends HyperHTMLElement {
     created() {
-        this.className = 'db ph4 pv3 bg-dark-blue'
+        this.style.backgroundColor = '#1C688E'
+        this.className = 'db pa3'
         this.render()
     }
 
@@ -9,7 +10,7 @@ class SearchBar extends HyperHTMLElement {
         return this.html`
             <label class="clip" for="search-input">Search for Restaurants by Name, Cuisine, Location</label>
             <input id="search-input" name="search-input"
-                   type="text" class="f6 f5-ns input-reset bn black-80 bg-white pa3 lh-solid w-100 br2"
+                   type="text" class="f6 input-reset bn black-80 bg-white pa3 lh-title w-100 br2"
                    placeholder="Search for Restaurants by Name, Cuisine, Location" value=""
                    onkeyup=${this}>
 `
@@ -28,8 +29,8 @@ class SearchBar extends HyperHTMLElement {
         main.innerHTML = ''
 
         const results = document.createElement('results-list')
-        results.filters = curr.filters
-        results.query = e.target.value
+        results.filters = curr.filters || ''
+        results.query = e.target.value || ''
 
         main.appendChild(results)
     }

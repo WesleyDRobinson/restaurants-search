@@ -21,10 +21,13 @@ class ResultsList extends HyperHTMLElement {
     attributeChangedCallback(attr) {
         if ('filters' === attr) return this.render()
 
+        let restaurantSearch = document.querySelector('restaurant-search')
+
         this.index
             .search({
                 filters: this.filters || '',
                 query: this.query || '',
+                aroundLatLng: restaurantSearch.coords || '',
                 aroundLatLngViaIP: true,
                 hitsPerPage: 3
             })

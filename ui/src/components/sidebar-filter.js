@@ -16,13 +16,13 @@ class SidebarFilter extends HyperHTMLElement {
                 foodType.name = 'food_type'
                 foodType.title = 'Cuisine/ Food Type'
                 foodType.facet = JSON.stringify(res.facets['food_type'])
+                foodType.lastElementChild.classList.add('h4', 'overflow-y-scroll')
                 this.appendChild(foodType)
 
                 let starsCount = document.createElement('filter-by')
                 starsCount.name = 'stars_count'
                 starsCount.title = 'Rating'
                 starsCount.facet = JSON.stringify(res.facets['stars_count'])
-
                 this.appendChild(starsCount)
 
 
@@ -40,17 +40,7 @@ class SidebarFilter extends HyperHTMLElement {
             })
             .catch(err => console.error(err))
 
-        // if discovering facets...
-        //      facets: ['*']
-        // and
-        //      Object.keys(facets).forEach(facet => {
-        //           let filter = document.createElement('filter-by')
-        //           filter.name = facet.split('_').join(' ')
-        //           filter.facet = JSON.stringify(facets[facet])
-        //           this.appendChild(filter)
-        //      })
-
-        this.className = 'flex flex-column w-100 w-25-ns pa3 br b--black-20'
+        this.className = 'flex flex-column w-100 w-25-ns pa3 br b--black-20 overflow-x-hidden'
         this.render()
     }
 

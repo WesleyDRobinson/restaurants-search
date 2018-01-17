@@ -93,10 +93,13 @@ class ResultsList extends HyperHTMLElement {
     attributeChangedCallback(attr) {
         if ('filters' === attr) return this.render()
 
+        let restaurantSearch = document.querySelector('restaurant-search')
+
         this.index
             .search({
                 filters: this.filters || '',
                 query: this.query || '',
+                aroundLatLng: restaurantSearch.coords || '',
                 aroundLatLngViaIP: true,
                 hitsPerPage: 3
             })
@@ -187,7 +190,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 class RestaurantSearch extends HyperHTMLElement {
     created() {
         // <!-- 1024/ 649 : 820/517 = ~80% width, 75-vh ok-->
-        this.className = 'db vh-100 vh-75-ns w-100 w-80-ns center shadow-2 overflow-scroll bg-near-white'
+        this.className = 'db vh-100 vh-75-ns w-100 w-80-ns center shadow-2 overflow-scroll bg-near-white overflow-x-hidden overflow-y-auto'
+        // async so not available immediately, using around IP search as fallback
+        navigator.geolocation.getCurrentPosition((location) => {
+            this.coords = `${location.coords.latitude}, ${location.coords.longitude}`
+        })
         this.render()
     }
 
@@ -216,7 +223,8 @@ RestaurantSearch.define('restaurant-search')
 
 class SearchBar extends HyperHTMLElement {
     created() {
-        this.className = 'db ph4 pv3 bg-dark-blue'
+        this.style.backgroundColor = '#1C688E'
+        this.className = 'db pa3'
         this.render()
     }
 
@@ -224,7 +232,7 @@ class SearchBar extends HyperHTMLElement {
         return this.html`
             <label class="clip" for="search-input">Search for Restaurants by Name, Cuisine, Location</label>
             <input id="search-input" name="search-input"
-                   type="text" class="f6 f5-ns input-reset bn black-80 bg-white pa3 lh-solid w-100 br2"
+                   type="text" class="f6 input-reset bn black-80 bg-white pa3 lh-title w-100 br2"
                    placeholder="Search for Restaurants by Name, Cuisine, Location" value=""
                    onkeyup=${this}>
 `
@@ -243,8 +251,8 @@ class SearchBar extends HyperHTMLElement {
         main.innerHTML = ''
 
         const results = document.createElement('results-list')
-        results.filters = curr.filters
-        results.query = e.target.value
+        results.filters = curr.filters || ''
+        results.query = e.target.value || ''
 
         main.appendChild(results)
     }
@@ -270,6 +278,9 @@ class RestaurantResult extends HyperHTMLElement {
     }
 
     render() {
+        let value = (Math.round(this.output.stars_count * 2) / 2).toFixed(1).split('.').join('')
+        let liClass = `stars-container stars-${value}`
+        let stars = hyperHTML`<span class="${liClass}">★★★★★</span>`
         return this.html`
             <a class="link" href="${this.output.reserve_url}">
                 <div class="dtc v-mid w3">
@@ -278,7 +289,7 @@ class RestaurantResult extends HyperHTMLElement {
                 </div>
                 <div class="dtc v-top pl3 pb2">
                     <h2 class="f6 f5-ns fw5 lh-title black mv0">${this.output.name}</h2>
-                    <p class="f6 fw4 mt2 mb0 black-40"><span class="gold">${this.output.stars_count} STARS</span> (${this.output.reviews_count} reviews)</p>
+                    <p class="f6 fw4 mt2 mb0 black-40"><span class="special-gold">${this.output.stars_count} ${stars}</span> (${this.output.reviews_count} reviews)</p>
                     <p class="f6 fw4 mt2 mb0 black-40">${this.output.food_type} | ${this.output.area} | ${this.output.price_range}</p>
                 </div>
             </a>
@@ -312,13 +323,13 @@ class SidebarFilter extends HyperHTMLElement {
                 foodType.name = 'food_type'
                 foodType.title = 'Cuisine/ Food Type'
                 foodType.facet = JSON.stringify(res.facets['food_type'])
+                foodType.lastElementChild.classList.add('h4', 'overflow-y-scroll')
                 this.appendChild(foodType)
 
                 let starsCount = document.createElement('filter-by')
                 starsCount.name = 'stars_count'
                 starsCount.title = 'Rating'
                 starsCount.facet = JSON.stringify(res.facets['stars_count'])
-
                 this.appendChild(starsCount)
 
 
@@ -336,17 +347,7 @@ class SidebarFilter extends HyperHTMLElement {
             })
             .catch(err => console.error(err))
 
-        // if discovering facets...
-        //      facets: ['*']
-        // and
-        //      Object.keys(facets).forEach(facet => {
-        //           let filter = document.createElement('filter-by')
-        //           filter.name = facet.split('_').join(' ')
-        //           filter.facet = JSON.stringify(facets[facet])
-        //           this.appendChild(filter)
-        //      })
-
-        this.className = 'flex flex-column w-100 w-25-ns pa3 br b--black-20'
+        this.className = 'flex flex-column w-100 w-25-ns pa3 br b--black-20 overflow-x-hidden'
         this.render()
     }
 
@@ -365,7 +366,6 @@ SidebarFilter.define('sidebar-filter')
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__results_list__ = __webpack_require__(0);
-
 
 
 // todo -- implement Stars :/
@@ -413,24 +413,91 @@ class ListItem extends HyperHTMLElement {
     onclick() {
         // UI : hover state
         for (let el of this.parentElement.children) {
-            el.classList.remove('bg-blue', 'near-white')
+            el.classList.remove('bg-blue-special', 'near-white')
         }
-        this.classList.add('bg-blue', 'near-white')
 
         // apply filter and print new results table
-        const curr = document.querySelector('results-list')
-        const main = document.getElementById('main')
-        main.innerHTML = ''
+        const getCurrentFiltersAndQuery = () => {
+            const curr = document.querySelector('results-list')
+            const main = document.getElementById('main')
+            const results = document.createElement('results-list')
+            results.filters = this.filters || ''
+            results.query = curr.query || ''
+            main.innerHTML = ''
+            main.appendChild(results)
+        }
 
-        const results = document.createElement('results-list')
-        results.filters = this.filters
-        results.query = curr.query || ''
+        if (this.active) {
+            this.active = null
+            this.filters = ''
+            getCurrentFiltersAndQuery()
+        } else {
+            this.classList.add('bg-blue-special', 'near-white')
+            this.active = true
+            getCurrentFiltersAndQuery()
+        }
 
-        main.appendChild(results)
     }
 }
 
 ListItem.define('list-item')
+
+class StarItem extends HyperHTMLElement {
+    static get observedAttributes() {
+        return ['count', 'value', 'filters'];
+    }
+
+    created() {
+        this.className = 'db'
+    }
+
+    attributeChangedCallback(attr) {
+        this.render()
+    }
+
+    render() {
+        let liClass = `stars-container stars-${this.value}`
+        let starSpan = hyperHTML`<div><span class="${liClass}">★★★★★</span></div>`
+        return this.html`
+                <li class="flex justify-between ph2 pv1 pointer br1 hover-light-red hover-bg-washed-blue"
+                    onclick="${this}">
+                    <span>${starSpan}</span>
+                    <span class="black-40">${this.count}</span>
+                </li>
+`
+    }
+
+    onclick() {
+        // UI : hover state
+        for (let el of this.parentElement.children) {
+            el.classList.remove('bg-blue-special', 'near-white')
+        }
+
+        // apply filter and print new results table
+        const getCurrentFiltersAndQuery = () => {
+            const curr = document.querySelector('results-list')
+            const main = document.getElementById('main')
+            const results = document.createElement('results-list')
+            results.filters = this.filters || ''
+            results.query = curr.query || ''
+            main.innerHTML = ''
+            main.appendChild(results)
+        }
+
+        if (this.active) {
+            this.active = null
+            this.filters = ''
+            getCurrentFiltersAndQuery()
+        } else {
+            this.classList.add('bg-blue-special', 'near-white')
+            this.active = true
+            getCurrentFiltersAndQuery()
+        }
+
+    }
+}
+
+StarItem.define('star-item')
 
 class FilterBy extends HyperHTMLElement {
 
@@ -439,7 +506,7 @@ class FilterBy extends HyperHTMLElement {
     }
 
     created() {
-        this.className = 'db pa2 pb0'
+        this.className = 'db pa2 pb0 overflow-hidden'
     }
 
     attributeChangedCallback(attr) {
@@ -449,7 +516,7 @@ class FilterBy extends HyperHTMLElement {
         let values = Object.keys(this.parsedFacet)
 
         const ul = document.createElement('ul')
-        ul.className = 'list f7 pl2 lh-title h4 overflow-scroll'
+        ul.className = 'list f7 pl2 lh-title'
 
         // special handle: Rating/ stars_count
         if ('Rating' === this.title) {
@@ -461,18 +528,18 @@ class FilterBy extends HyperHTMLElement {
             }, {})
 
             Object.keys(wholeStars).forEach(value => {
-                const li = document.createElement('list-item')
-                li.value = value + ' STARS'
-                li.count = wholeStars[value]
-                li.filters = `${this.name} > ${value}.0`
-                ul.appendChild(li)
+                let starLi = document.createElement('star-item')
+                starLi.value = value
+                starLi.count = wholeStars[value]
+                starLi.filters = `"${this.name} > ${value}"`
+                ul.appendChild(starLi)
             })
         } else {
             values.forEach(value => {
                 const li = document.createElement('list-item')
                 li.value = value
                 li.count = this.parsedFacet[value]
-                li.filters = `${this.name}:${value}`
+                li.filters = `${this.name}:"${value}"`
                 ul.appendChild(li)
             })
         }

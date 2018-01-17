@@ -11,6 +11,9 @@ class RestaurantResult extends HyperHTMLElement {
     }
 
     render() {
+        let value = (Math.round(this.output.stars_count * 2) / 2).toFixed(1).split('.').join('')
+        let liClass = `stars-container stars-${value}`
+        let stars = hyperHTML`<span class="${liClass}">★★★★★</span>`
         return this.html`
             <a class="link" href="${this.output.reserve_url}">
                 <div class="dtc v-mid w3">
@@ -19,7 +22,7 @@ class RestaurantResult extends HyperHTMLElement {
                 </div>
                 <div class="dtc v-top pl3 pb2">
                     <h2 class="f6 f5-ns fw5 lh-title black mv0">${this.output.name}</h2>
-                    <p class="f6 fw4 mt2 mb0 black-40"><span class="gold">${this.output.stars_count} STARS</span> (${this.output.reviews_count} reviews)</p>
+                    <p class="f6 fw4 mt2 mb0 black-40"><span class="special-gold">${this.output.stars_count} ${stars}</span> (${this.output.reviews_count} reviews)</p>
                     <p class="f6 fw4 mt2 mb0 black-40">${this.output.food_type} | ${this.output.area} | ${this.output.price_range}</p>
                 </div>
             </a>

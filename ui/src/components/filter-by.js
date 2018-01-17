@@ -1,25 +1,5 @@
 import ResultsList from './results-list'
 
-
-// todo -- implement Stars :/
-// class RatedStar extends HyperHTMLElement {
-//     static get observedAttributes() {
-//         return ['stars'];
-//     }
-//
-//     attributeChangedCallback() {
-//         this.className = `f6 stars-container stars-${this.stars}`
-//         this.render()
-//     }
-//
-//     render() {
-//         return this.html`<span class="${this.className}">★★★★★</span>`
-//     }
-//
-// }
-//
-// RatedStar.define('rated-star')
-
 class ListItem extends HyperHTMLElement {
     static get observedAttributes() {
         return ['count', 'value', 'filters'];
@@ -46,24 +26,91 @@ class ListItem extends HyperHTMLElement {
     onclick() {
         // UI : hover state
         for (let el of this.parentElement.children) {
-            el.classList.remove('bg-blue', 'near-white')
+            el.classList.remove('bg-blue-special', 'near-white')
         }
-        this.classList.add('bg-blue', 'near-white')
 
         // apply filter and print new results table
-        const curr = document.querySelector('results-list')
-        const main = document.getElementById('main')
-        main.innerHTML = ''
+        const getCurrentFiltersAndQuery = () => {
+            const curr = document.querySelector('results-list')
+            const main = document.getElementById('main')
+            const results = document.createElement('results-list')
+            results.filters = this.filters || ''
+            results.query = curr.query || ''
+            main.innerHTML = ''
+            main.appendChild(results)
+        }
 
-        const results = document.createElement('results-list')
-        results.filters = this.filters
-        results.query = curr.query || ''
+        if (this.active) {
+            this.active = null
+            this.filters = ''
+            getCurrentFiltersAndQuery()
+        } else {
+            this.classList.add('bg-blue-special', 'near-white')
+            this.active = true
+            getCurrentFiltersAndQuery()
+        }
 
-        main.appendChild(results)
     }
 }
 
 ListItem.define('list-item')
+
+class StarItem extends HyperHTMLElement {
+    static get observedAttributes() {
+        return ['count', 'value', 'filters'];
+    }
+
+    created() {
+        this.className = 'db'
+    }
+
+    attributeChangedCallback(attr) {
+        this.render()
+    }
+
+    render() {
+        let liClass = `stars-container stars-${this.value}`
+        let starSpan = hyperHTML`<div><span class="${liClass}">★★★★★</span></div>`
+        return this.html`
+                <li class="flex justify-between ph2 pv1 pointer br1 hover-light-red hover-bg-washed-blue"
+                    onclick="${this}">
+                    <span>${starSpan}</span>
+                    <span class="black-40">${this.count}</span>
+                </li>
+`
+    }
+
+    onclick() {
+        // UI : hover state
+        for (let el of this.parentElement.children) {
+            el.classList.remove('bg-blue-special', 'near-white')
+        }
+
+        // apply filter and print new results table
+        const getCurrentFiltersAndQuery = () => {
+            const curr = document.querySelector('results-list')
+            const main = document.getElementById('main')
+            const results = document.createElement('results-list')
+            results.filters = this.filters || ''
+            results.query = curr.query || ''
+            main.innerHTML = ''
+            main.appendChild(results)
+        }
+
+        if (this.active) {
+            this.active = null
+            this.filters = ''
+            getCurrentFiltersAndQuery()
+        } else {
+            this.classList.add('bg-blue-special', 'near-white')
+            this.active = true
+            getCurrentFiltersAndQuery()
+        }
+
+    }
+}
+
+StarItem.define('star-item')
 
 class FilterBy extends HyperHTMLElement {
 
@@ -72,7 +119,7 @@ class FilterBy extends HyperHTMLElement {
     }
 
     created() {
-        this.className = 'db pa2 pb0'
+        this.className = 'db pa2 pb0 overflow-hidden'
     }
 
     attributeChangedCallback(attr) {
@@ -82,7 +129,7 @@ class FilterBy extends HyperHTMLElement {
         let values = Object.keys(this.parsedFacet)
 
         const ul = document.createElement('ul')
-        ul.className = 'list f7 pl2 lh-title h4 overflow-scroll'
+        ul.className = 'list f7 pl2 lh-title'
 
         // special handle: Rating/ stars_count
         if ('Rating' === this.title) {
@@ -94,18 +141,18 @@ class FilterBy extends HyperHTMLElement {
             }, {})
 
             Object.keys(wholeStars).forEach(value => {
-                const li = document.createElement('list-item')
-                li.value = value + ' STARS'
-                li.count = wholeStars[value]
-                li.filters = `${this.name} > ${value}.0`
-                ul.appendChild(li)
+                let starLi = document.createElement('star-item')
+                starLi.value = value
+                starLi.count = wholeStars[value]
+                starLi.filters = `"${this.name} > ${value}"`
+                ul.appendChild(starLi)
             })
         } else {
             values.forEach(value => {
                 const li = document.createElement('list-item')
                 li.value = value
                 li.count = this.parsedFacet[value]
-                li.filters = `${this.name}:${value}`
+                li.filters = `${this.name}:"${value}"`
                 ul.appendChild(li)
             })
         }

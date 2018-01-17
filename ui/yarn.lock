@@ -1994,6 +1994,10 @@ sshpk@^1.7.0:
     jsbn "~0.1.0"
     tweetnacl "~0.14.0"
 
+star-rating-tag@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/star-rating-tag/-/star-rating-tag-0.2.1.tgz#1067ca2497d1b1824572e7959f0cbfd4979422e3"
+
 stream-browserify@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/stream-browserify/-/stream-browserify-2.0.1.tgz#66266ee5f9bdb9940a4e4514cafb43bb71e5c9db"
